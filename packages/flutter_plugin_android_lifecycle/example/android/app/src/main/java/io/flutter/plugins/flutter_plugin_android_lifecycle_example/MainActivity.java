@@ -6,10 +6,12 @@ package io.flutter.plugins.flutter_plugin_android_lifecycle_example;
 
 import android.util.Log;
 import androidx.lifecycle.Lifecycle;
-import dev.flutter.plugins.e2e.E2EPlugin;
+import dev.flutter.plugins.integration_test.IntegrationTestPlugin;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.embedding.engine.plugins.lifecycle.FlutterLifecycleAdapter;
 
 public class MainActivity extends FlutterActivity {
@@ -18,14 +20,20 @@ public class MainActivity extends FlutterActivity {
   @Override
   public void configureFlutterEngine(FlutterEngine flutterEngine) {
     flutterEngine.getPlugins().add(new TestPlugin());
-    flutterEngine.getPlugins().add(new E2EPlugin());
+    flutterEngine.getPlugins().add(new IntegrationTestPlugin());
   }
 
-  private static class TestPlugin implements FlutterPlugin {
+  private static class TestPlugin implements FlutterPlugin, ActivityAware {
 
     @Override
-    public void onAttachedToEngine(FlutterPluginBinding flutterPluginBinding) {
-      Lifecycle lifecycle = FlutterLifecycleAdapter.getLifecycle(flutterPluginBinding);
+    public void onAttachedToEngine(FlutterPluginBinding flutterPluginBinding) {}
+
+    @Override
+    public void onDetachedFromEngine(FlutterPluginBinding binding) {}
+
+    @Override
+    public void onAttachedToActivity(ActivityPluginBinding binding) {
+      Lifecycle lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(binding);
 
       if (lifecycle == null) {
         Log.d(TAG, "Couldn't obtained Lifecycle!");
@@ -40,6 +48,12 @@ public class MainActivity extends FlutterActivity {
     }
 
     @Override
-    public void onDetachedFromEngine(FlutterPluginBinding flutterPluginBinding) {}
+    public void onDetachedFromActivity() {}
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {}
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {}
   }
 }
